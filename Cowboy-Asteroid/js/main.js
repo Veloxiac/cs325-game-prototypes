@@ -25,7 +25,7 @@ window.onload = function() {
     function create() {
     	game.physics.startSystem(Phaser.Physics.ARCADE);
     	game.physics.arcade.gravity.y = 100;
-        asteroid = game.add.sprite( game.world.centerX, 0, 'asteroid' );
+        asteroid = game.add.sprite( game.world.centerX, game.world.centerY, 'asteroid' );
         asteroid.anchor.setTo( 0.5, 0.5 );
     }
 
