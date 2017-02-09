@@ -22,13 +22,13 @@ window.onload = function() {
     }
 
     var asteroid = [];
-    //var amountOfAsteroids = 0;
     var gameIsOver;
     var player;
     var cursors;
     var timer;
     var style;
     var text;
+    var minSpeed = 100;
 
     function create() {
     	game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -41,11 +41,11 @@ window.onload = function() {
         player.body.allowGravity = false;
         cursors = game.input.keyboard.createCursorKeys();
         timer = game.time.create(false);
-        timer.loop(Phaser.Timer.SECOND/2, createAsteroid, this);
+        timer.repeat(Phaser.Timer.SECOND, 8, createAsteroid, this);
         timer.start();
 
         style = { font: "25px Verdana", fill: "#ffffff", align: "center" };
-        text = game.add.text( game.world.centerX, 15, "Time: 0", style);
+        text = game.add.text( game.world.centerX, 8, "Time: 0", style);
     }
 
     function createAsteroid(){
@@ -54,14 +54,13 @@ window.onload = function() {
     	currentAsteroid.anchor.setTo(0.5,0.5);
     	game.physics.enable(currentAsteroid, Phaser.Physics.ARCADE);
     	currentAsteroid.body.collideWorldBounds = false;
-    	currentAsteroid.body.velocity.y = 500;
+    	currentAsteroid.body.velocity.y = Math.random()*100+minSpeed;
 
     	//borrowed code
     	currentAsteroid.body.onCollide = new Phaser.Signal();
     	currentAsteroid.body.onCollide.add(gameOver, this);
 
     	asteroid.push(currentAsteroid);
-    	//amountOfAsteroids++;
     }
 
     function gameOver(){
@@ -74,23 +73,25 @@ window.onload = function() {
     	for(var i = 0; i < asteroid.length; i++){
     		if(!gameIsOver){
     			game.physics.arcade.collide(player, asteroid[i]);
+			    if(asteroid[i].y > 800){
+    				asteroid[i].x = Math.random()*400;
+    				asteroid[i].y = -100 - (Math.random()*100);
+    				asteroid[i].body.velocity.y = Math.random()*100+minSpeed;
+				}
     		}else{
     			asteroid[i].body.velocity.y = 0;
     		}
-    		if(asteroid[i].y > 800){
-    			console.log(asteroid.length	);
-    			asteroid.splice	(i, 1)[0].destroy();
-    			i--;
-    		}
+
     	}	
+    	minSpeed = 100 + game.time.totalElapsedSeconds()*2;
 
         player.body.velocity.x = 0;
         player.body.velocity.y = 0;
 	    if (cursors.left.isDown){
-	        player.body.velocity.x = -300;
+	        player.body.velocity.x = -600;
 	    }
 	    else if (cursors.right.isDown){
-	        player.body.velocity.x = 300;
+	        player.body.velocity.x = 600;
 	    }
 	    if(!gameIsOver){
 	        text.text = "Time: "+Math.round(timer.seconds);
