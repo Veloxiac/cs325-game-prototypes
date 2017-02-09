@@ -13,27 +13,88 @@ window.onload = function() {
 
     "use strict";
 
-    var game = new Phaser.Game( 800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
+    var game = new Phaser.Game( 400, 700, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
 
     function preload() {
         game.load.image( 'asteroid', 'assets/asteroid.png' );
+        game.load.image('player', 'assets/player.png');
+        game.load.image('star', 'assets/star.png');
     }
 
-    var asteroid;
+    var asteroid = [];
+    //var amountOfAsteroids = 0;
+    var gameIsOver;
+    var player;
+    var cursors;
+    var timer;
+    var style;
+    var text;
 
     function create() {
     	game.physics.startSystem(Phaser.Physics.ARCADE);
-    	game.physics.arcade.gravity.y = 100;
-        asteroid = game.add.sprite( game.world.centerX, game.world.centerY, 'asteroid' );
-        asteroid.anchor.setTo( 0.5, 0.5 );
+    	game.physics.arcade.gravity.y = 0;
+    	
+    	player = game.add.sprite(250,650, 'player');
+        player.anchor.setTo( 0.5, 0.5 );
+        game.physics.enable([player], Phaser.Physics.ARCADE);
+        player.body.collideWorldBounds = true;
+        player.body.allowGravity = false;
+        cursors = game.input.keyboard.createCursorKeys();
+        timer = game.time.create(false);
+        timer.loop(Phaser.Timer.SECOND/2, createAsteroid, this);
+        timer.start();
+
+        style = { font: "25px Verdana", fill: "#ffffff", align: "center" };
+        text = game.add.text( game.world.centerX, 15, "Time: 0", style);
+    }
+
+    function createAsteroid(){
+    	var currentAsteroid = game.add.sprite(-100,-100, 'asteroid');
+    	currentAsteroid.x = Math.random()*400;
+    	currentAsteroid.anchor.setTo(0.5,0.5);
+    	game.physics.enable(currentAsteroid, Phaser.Physics.ARCADE);
+    	currentAsteroid.body.collideWorldBounds = false;
+    	currentAsteroid.body.velocity.y = 500;
+
+    	//borrowed code
+    	currentAsteroid.body.onCollide = new Phaser.Signal();
+    	currentAsteroid.body.onCollide.add(gameOver, this);
+
+    	asteroid.push(currentAsteroid);
+    	//amountOfAsteroids++;
+    }
+
+    function gameOver(){
+    	gameIsOver = true;
+    	timer.destroy(); 
+	    text.text += "\nGame Over!"
     }
 
     function update() {
-        // Accelerate the 'logo' sprite towards the cursor,
-        // accelerating at 500 pixels/second and moving no faster than 500 pixels/second
-        // in X or Y.
-        // This function returns the rotation angle that makes it visually match its
-        // new trajectory.
-        //bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, this.game.input.activePointer, 500, 500, 500 );
+    	for(var i = 0; i < asteroid.length; i++){
+    		if(!gameIsOver){
+    			game.physics.arcade.collide(player, asteroid[i]);
+    		}else{
+    			asteroid[i].body.velocity.y = 0;
+    		}
+    		if(asteroid[i].y > 800){
+    			console.log(asteroid.length	);
+    			asteroid.splice	(i, 1)[0].destroy();
+    			i--;
+    		}
+    	}	
+
+        player.body.velocity.x = 0;
+        player.body.velocity.y = 0;
+	    if (cursors.left.isDown){
+	        player.body.velocity.x = -300;
+	    }
+	    else if (cursors.right.isDown){
+	        player.body.velocity.x = 300;
+	    }
+	    if(!gameIsOver){
+	        text.text = "Time: "+Math.round(timer.seconds);
+    	}
     }
+
 };
