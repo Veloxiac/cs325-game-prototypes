@@ -23,18 +23,10 @@ window.onload = function() {
     var asteroid;
 
     function create() {
-        asteroid = game.add.sprite( game.world.centerX, -20, 'asteroid' );
+    	game.physics.startSystem(Phaser.Physics.ARCADE);
+    	game.physics.arcade.gravity.y = 100;
+        asteroid = game.add.sprite( game.world.centerX, 0, 'asteroid' );
         asteroid.anchor.setTo( 0.5, 0.5 );
-        // Turn on the arcade physics engine for this sprite.
-        game.physics.enable(asteroid, Phaser.Physics.ARCADE );
-        // Make it bounce off of the world bounds.
-
-
-        // Add some text using a CSS style.
-        // Center it in X, and position its top 15 pixels from the top of the world.
-        // var style = { font: "25px Verdana", fill: "#9999ff", align: "center" };
-        // var text = game.add.text( game.world.centerX, 15, "Build something amazing.", style );
-        // text.anchor.setTo( 0.5, 0.0 );
     }
 
     function update() {
